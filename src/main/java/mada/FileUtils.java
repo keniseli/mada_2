@@ -52,7 +52,7 @@ public class FileUtils {
 		return content;
 	}
 
-	public void writeToFile(File file, String text) {
+	public static void writeToFile(File file, String text) {
 		Path path = file.toPath();
 		OpenOption[] options = new OpenOption[0];
 		List<String> lines = new ArrayList<>();
