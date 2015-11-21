@@ -3,6 +3,8 @@ package mada;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.event.ListSelectionEvent;
+
 public class HuffmanUtils {
 
 	private static final int PROBABILITY_TABLE_SIZE = 128;
@@ -16,6 +18,9 @@ public class HuffmanUtils {
 	 */
 	public static int[] determineProbabilityTable(String content) {
 		int[] probabilityTable = new int[PROBABILITY_TABLE_SIZE];
+		for (int i = 0; i < probabilityTable.length; i++) {
+			probabilityTable[i] = 0;
+		}
 		for (char c : content.toCharArray()) {
 			if (c < PROBABILITY_TABLE_SIZE) {
 				probabilityTable[c]++;
@@ -32,17 +37,16 @@ public class HuffmanUtils {
 	 *            according index as character.
 	 * @return
 	 */
-	public static Node createFrequencyTree(int[] probabilities) {
-		List<Node> nodes = getNodesFromProbabilityTable(probabilities);
-		Node root = createTreeFromNodes(nodes);
-		return root;
+	public static List<Node> createFrequencyTree(int[] probabilityTable) {
+		List<Node> nodes = getNodesFromProbabilityTable(probabilityTable);
+		createTreeFromNodes(nodes);
+		return nodes;
 	}
 
-
-	private static List<Node> getNodesFromProbabilityTable(int[] probabilities) {
+	private static List<Node> getNodesFromProbabilityTable(int[] probabilityTable) {
 		List<Node> nodes = new ArrayList<>();
-		for (int i = 0; i < probabilities.length; i++) {
-			int probability = probabilities[i];
+		for (int i = 0; i < probabilityTable.length; i++) {
+			int probability = probabilityTable[i];
 			if (probability > 0) {
 				Node node = new Node(probability, String.valueOf((char) i));
 				nodes.add(node);
@@ -50,17 +54,18 @@ public class HuffmanUtils {
 		}
 		return nodes;
 	}
-	private static Node createTreeFromNodes(List<Node> nodes) {
+
+	private static void createTreeFromNodes(List<Node> nodes) {
+		List<Node> clone = new ArrayList<>(nodes);
 		Node parent = null;
-		while (nodes.size() > 1) {
-			Node node1 = getSmallestNode(nodes);
-			nodes.remove(node1);
-			Node node2 = getSmallestNode(nodes);
-			nodes.remove(node2);
+		while (clone.size() > 1) {
+			Node node1 = getSmallestNode(clone);
+			clone.remove(node1);
+			Node node2 = getSmallestNode(clone);
+			clone.remove(node2);
 			parent = new Node(node1, node2);
-			nodes.add(parent);
+			clone.add(parent);
 		}
-		return parent;
 	}
 
 	private static Node getSmallestNode(List<Node> nodes) {
@@ -68,6 +73,22 @@ public class HuffmanUtils {
 			return Integer.compare(n1.getProbability(), n2.getProbability());
 		}).get();
 		return smallestNode;
+	}
+
+	public static String encode(String content, List<Node> nodes) {
+		String code = "";
+		for (int i=0; i<content.length(); i++) {
+			char character = content.charAt(i);
+			code = code + findNode(String.valueOf(character), nodes).getCode(null);	
+		}		
+
+		return code;
+	}
+	
+	private static Node findNode(String value, List<Node> nodes) {
+		return nodes.stream().filter(node -> {
+			return node.getValue().equals(value);
+		}).findFirst().get();
 	}
 
 }

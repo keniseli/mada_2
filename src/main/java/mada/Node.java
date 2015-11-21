@@ -12,7 +12,8 @@ public class Node {
 		this.child1 = child1;
 		this.child0.setParent(this);
 		this.child1.setParent(this);
-		this.value = String.format("%s%s", child0.getValue(), child1.getValue());
+		this.value = String
+				.format("%s%s", child0.getValue(), child1.getValue());
 		this.probability = child0.getProbability() + child1.getProbability();
 	}
 
@@ -29,13 +30,16 @@ public class Node {
 		if (child != null) {
 			if (child.equals(child0)) {
 				code = String.format("%s%s", code, "0");
-			} else {
+			} else if (child.equals(child1)) {
 				code = String.format("%s%s", code, "1");
+			} else {
+				code = "";
 			}
+
 		}
 		return code;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("%s : %d", value, probability);
@@ -80,7 +84,6 @@ public class Node {
 			return false;
 		return true;
 	}
-	
 
 	public Node getChild0() {
 		return child0;

@@ -1,6 +1,7 @@
 package mada;
 
 import java.io.File;
+import java.util.List;
 
 public class App {
 
@@ -11,8 +12,9 @@ public class App {
 		File inputFile = fileUtils.getFileFromClassPath(INPUT_FILE);
 		String content = fileUtils.readContentFromFile(inputFile);
 		
-		int[] probability = HuffmanUtils.determineProbabilityTable(content);
-		Node frequencyTree = HuffmanUtils.createFrequencyTree(probability);
+		int[] probabilityTable = HuffmanUtils.determineProbabilityTable(content);
+		List<Node> nodes = HuffmanUtils.createFrequencyTree(probabilityTable);
+		HuffmanUtils.encode(content, nodes);
 	}
 
 }

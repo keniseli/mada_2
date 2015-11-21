@@ -8,15 +8,26 @@ import mada.Node;
 public class NodeTest {
 
 	@Test
-	public void testCodeOfChildren() {
-		Node node = new Node(1, "a");
+	public void testCodeOfValidChildren() {
 		Node child0 = new Node(1, "b");
 		Node child1 = new Node(1, "c");
-		node.setChild0(child0);
-		node.setChild1(child1);
+		Node parent = new Node(child0, child1);
 		Assert.assertEquals("0", child0.getCode(null));
 		Assert.assertEquals("1", child1.getCode(null));
-		Assert.assertEquals("", node.getCode(null));
+		Assert.assertEquals("0", parent.getCode(child0));
+		Assert.assertEquals("1", parent.getCode(child1));
+		Assert.assertEquals("", parent.getCode(null));
+	
+	}
+	
+	@Test
+	public void testCodeOfInvalidChildren() {
+		Node a = new Node(1, "a");
+		Node b = new Node(1, "b");
+		Node ab = new Node(a, b);
+		Node c = new Node(1,"c");
+		Assert.assertEquals("",ab.getCode(c));
+		Assert.assertEquals("", c.getCode(null));
 	}
 	
 	@Test

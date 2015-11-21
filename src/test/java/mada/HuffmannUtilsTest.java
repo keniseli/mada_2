@@ -1,5 +1,7 @@
 package mada;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,17 +24,26 @@ public class HuffmannUtilsTest {
 		probability['e'] = 1;
 		probability['s'] = 1;
 
-		Node frequencyTree = HuffmanUtils.createFrequencyTree(probability);
+		List<Node> nodes = HuffmanUtils.createFrequencyTree(probability);
 
 		Node e = new Node(1, "e");
 		Node s = new Node(1, "s");
 		Node es = new Node(e, s);
 		Node t = new Node(2, "t");
-		Node root = new Node(t, es);
+		Node tes = new Node(t, es);
 
-		Assert.assertEquals(root, frequencyTree);
-		Assert.assertEquals(root.getChild0(), frequencyTree.getChild0());
-		Assert.assertEquals(root.getChild1(), frequencyTree.getChild1());
+		Node eInList = findNode("e", nodes);
+		Node sInList = findNode("s", nodes);
+		Node tInList = findNode("t", nodes);
+		Assert.assertEquals(e.getCode(null), eInList.getCode(null));
+		Assert.assertEquals(s.getCode(null), sInList.getCode(null));
+		Assert.assertEquals(t.getCode(null), tInList.getCode(null));
+	}
+
+	private Node findNode(String value, List<Node> nodes) {
+		return nodes.stream().filter(node -> {
+			return node.getValue().equals(value);
+		}).findFirst().get();
 	}
 
 	@Test
@@ -55,26 +66,22 @@ public class HuffmannUtilsTest {
 									// after s:3)
 		Node reops = new Node(re, ops);
 
-		Node frequencyTree = HuffmanUtils.createFrequencyTree(probability);
+		HuffmanUtils.createFrequencyTree(probability);
 
-		Assert.assertEquals(reops, frequencyTree);
-		Assert.assertEquals(reops.getChild0(), frequencyTree.getChild0());
-		Assert.assertEquals(reops.getChild1(), frequencyTree.getChild1());
-		
 		// e - re = 1, re - reops = 0
 		Assert.assertEquals("01", e.getCode(null));
-		
+
 		// s - ops = 1, ops - reops = 1
 		Assert.assertEquals("11", s.getCode(null));
-		
+
 		// p - op = 1, op - ops = 0, ops - reops = 1
 		Assert.assertEquals("101", p.getCode(null));
-		
+
 		// r - re = 0, re - reops = 0
 		Assert.assertEquals("00", r.getCode(null));
-		
+
 		// o - op = 0, op - ops = 0, ops - reops = 1
-		Assert.assertEquals("100", o.getCode(null)); 
+		Assert.assertEquals("100", o.getCode(null));
 	}
 
 }
