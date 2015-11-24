@@ -3,13 +3,21 @@ package mada;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class HuffmannUtilsTest {
 
+	private HuffmanUtils huffmanUtils;
+	
+	@Before
+	public void setUp() {
+		huffmanUtils = new HuffmanUtils();
+	}
+	
 	@Test
 	public void testDetermineProbabilityTable() {
-		int[] probability = HuffmanUtils.determineProbabilityTable("test");
+		int[] probability = huffmanUtils.determineProbabilityTable("test");
 		Assert.assertEquals(2, probability['t']);
 		Assert.assertEquals(1, probability['e']);
 		Assert.assertEquals(1, probability['s']);
@@ -24,7 +32,7 @@ public class HuffmannUtilsTest {
 		probability['e'] = 1;
 		probability['s'] = 1;
 
-		List<Node> nodes = HuffmanUtils.createFrequencyTree(probability);
+		List<Node> nodes = huffmanUtils.createFrequencyTree(probability);
 
 		Node e = new Node(1, "e");
 		Node s = new Node(1, "s");
@@ -66,7 +74,7 @@ public class HuffmannUtilsTest {
 									// after s:3)
 		Node reops = new Node(re, ops);
 
-		HuffmanUtils.createFrequencyTree(probability);
+		huffmanUtils.createFrequencyTree(probability);
 
 		// e - re = 1, re - reops = 0
 		Assert.assertEquals("01", e.getCode(null));

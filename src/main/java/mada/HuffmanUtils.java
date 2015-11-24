@@ -1,10 +1,7 @@
 package mada;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.event.ListSelectionEvent;
 
 public class HuffmanUtils {
 
@@ -17,7 +14,7 @@ public class HuffmanUtils {
 	 * @return a table containing the probability of occurrence of the first 128
 	 *         ASCII letters.
 	 */
-	public static int[] determineProbabilityTable(String content) {
+	public int[] determineProbabilityTable(String content) {
 		int[] probabilityTable = new int[PROBABILITY_TABLE_SIZE];
 		for (int i = 0; i < probabilityTable.length; i++) {
 			probabilityTable[i] = 0;
@@ -38,7 +35,7 @@ public class HuffmanUtils {
 	 *            according index as character.
 	 * @return
 	 */
-	public static List<Node> createFrequencyTree(int[] probabilityTable) {
+	public List<Node> createFrequencyTree(int[] probabilityTable) {
 		List<Node> nodes = getNodesFromProbabilityTable(probabilityTable);
 		createTreeFromNodes(nodes);
 		return nodes;
@@ -56,7 +53,7 @@ public class HuffmanUtils {
 		return nodes;
 	}
 
-	private static void createTreeFromNodes(List<Node> nodes) {
+	private void createTreeFromNodes(List<Node> nodes) {
 		List<Node> clone = new ArrayList<>(nodes);
 		Node parent = null;
 		while (clone.size() > 1) {
@@ -69,24 +66,14 @@ public class HuffmanUtils {
 		}
 	}
 
-	private static Node getSmallestNode(List<Node> nodes) {
+	private Node getSmallestNode(List<Node> nodes) {
 		Node smallestNode = nodes.stream().min((n1, n2) -> {
 			return Integer.compare(n1.getProbability(), n2.getProbability());
 		}).get();
 		return smallestNode;
 	}
 
-	public static String encode(String content, List<Node> nodes) {
-		String code = "";
-		for (int i = 0; i < content.length(); i++) {
-			char character = content.charAt(i);
-			code = code + findNode(String.valueOf(character), nodes).getCode(null);
-		}
-
-		return code;
-	}
-
-	public static String genEncodingTable(String content, List<Node> nodes) {
+	public String generateEncodingTable(String content, List<Node> nodes) {
 		String encodingEntry = "";
 		String encodingTableEntry = "";
 		int charASCII = 0;
@@ -99,8 +86,8 @@ public class HuffmanUtils {
 		return encodingTableEntry;
 	}
 
-	public static String getBitstreamMultiple8(String content, List<Node> nodes) {
-		String bitStream = encode(content, nodes);
+	public String encode(String content, List<Node> nodes) {
+		String bitStream = encodeSimple(content, nodes);
 		if (bitStream.length() % 8 != 0) {
 			bitStream = bitStream + "1";
 		}
@@ -110,7 +97,16 @@ public class HuffmanUtils {
 		return bitStream;
 	}
 
-	private static Node findNode(String value, List<Node> nodes) {
+	public String encodeSimple(String content, List<Node> nodes) {
+		String code = "";
+		for (int i = 0; i < content.length(); i++) {
+			char character = content.charAt(i);
+			code = code + findNode(String.valueOf(character), nodes).getCode(null);
+		}
+		return code;
+	}
+
+	private Node findNode(String value, List<Node> nodes) {
 		return nodes.stream().filter(node -> {
 			return node.getValue().equals(value);
 		}).findFirst().get();

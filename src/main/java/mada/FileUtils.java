@@ -1,6 +1,7 @@
 package mada;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -41,7 +42,7 @@ public class FileUtils {
 			throw new RuntimeException(message);
 		}
 	}
-	
+
 	public String readContentFromFile(File file) {
 		String absolutePath = file.getAbsolutePath();
 		List<String> readLinesFromFile = readLinesFromFile(absolutePath);
@@ -52,7 +53,7 @@ public class FileUtils {
 		return content;
 	}
 
-	public static void writeToFile(File file, String text) {
+	public void writeToFile(File file, String text) {
 		Path path = file.toPath();
 		OpenOption[] options = new OpenOption[0];
 		List<String> lines = new ArrayList<>();
@@ -64,4 +65,27 @@ public class FileUtils {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public String writeByteArrayToTemporaryFile(byte[] bytes, String outputFileName, String outputFileExtension) {
+		try {
+			File outputFile = File.createTempFile(outputFileName, outputFileExtension);
+			FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+			fileOutputStream.write(bytes);
+			fileOutputStream.close();
+			return outputFile.getAbsolutePath();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String writeToTemporaryFile(String fileName, String fileExtension, String content) {
+		try {
+			File tempFile = File.createTempFile(fileName, fileExtension);
+			writeToFile(tempFile, content);
+			return tempFile.getAbsolutePath();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
