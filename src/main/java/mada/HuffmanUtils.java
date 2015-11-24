@@ -1,5 +1,6 @@
 package mada;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,14 +78,38 @@ public class HuffmanUtils {
 
 	public static String encode(String content, List<Node> nodes) {
 		String code = "";
-		for (int i=0; i<content.length(); i++) {
+		for (int i = 0; i < content.length(); i++) {
 			char character = content.charAt(i);
-			code = code + findNode(String.valueOf(character), nodes).getCode(null);	
-		}		
+			code = code + findNode(String.valueOf(character), nodes).getCode(null);
+		}
 
 		return code;
 	}
-	
+
+	public static String genEncodingTable(String content, List<Node> nodes) {
+		String encodingEntry = "";
+		String encodingTableEntry = "";
+		int charASCII = 0;
+		for (int i = 0; i < content.length(); i++) {
+			char character = content.charAt(i);
+			encodingEntry = findNode(String.valueOf(character), nodes).getCode(null);
+			charASCII = (int) character;
+			encodingTableEntry = encodingTableEntry + String.format("%s%s%s%s", charASCII, ":", encodingEntry, "-");
+		}
+		return encodingTableEntry;
+	}
+
+	public static String getBitstreamMultiple8(String content, List<Node> nodes) {
+		String bitStream = encode(content, nodes);
+		if (bitStream.length() % 8 != 0) {
+			bitStream = bitStream + "1";
+		}
+		while (bitStream.length() % 8 != 0) {
+			bitStream = bitStream + "0";
+		}
+		return bitStream;
+	}
+
 	private static Node findNode(String value, List<Node> nodes) {
 		return nodes.stream().filter(node -> {
 			return node.getValue().equals(value);
