@@ -1,6 +1,7 @@
 package mada;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class HuffmanUtils {
@@ -110,6 +111,38 @@ public class HuffmanUtils {
 		return nodes.stream().filter(node -> {
 			return node.getValue().equals(value);
 		}).findFirst().get();
+	}
+
+	public HashMap<String, Integer> getHashMapFromDecTab(String decTabContent) {
+		String[] tab = decTabContent.split("-");
+		HashMap<String,Integer> decMap = new HashMap<>();
+		
+		for(int i = 0; i < tab.length; i++) {
+			String[] tmp = tab[i].split(":");
+			decMap.put(tmp[1], Integer.valueOf(tmp[0]));
+		}
+		
+		return decMap;
+	}
+
+	public String decode(String encodedBitText, HashMap<String, Integer> encTableMap) {
+		String encodedText = "";
+		int signStart = 0;
+		int signLength = 1;
+		while(signLength <= encodedBitText.length()) {
+			String tmpSign = encodedBitText.substring(signStart, signLength);
+			if (encTableMap.containsKey(tmpSign)) {
+				int x = encTableMap.get(tmpSign);
+				char c = (char) x;
+				encodedText += String.valueOf(c);
+				signStart = signLength;
+				signLength = signStart + 1;
+			} else {
+				signLength++;
+			}
+		}
+		
+		return encodedText;
 	}
 
 }
