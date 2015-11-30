@@ -13,6 +13,7 @@ public class App {
 	private static final String DECODE_TABLE_FILE_EXTENSION = ".txt";
 	private static final String ENCODED_FILE_NAME = "output";
 	private static final String ENCODED_FILE_EXTENSION = ".dat";
+	private static final String DECODED_TEXT_FILE_NAME = "decompress.txt";
 	private static final int BITS_PER_BYTE = 8;
 
 	private HuffmanUtils huffmanUtils;
@@ -70,24 +71,27 @@ public class App {
 		// content to decode from byte-array
 		
 		// TEST FILE OF VOGT
-		// byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output-mada.dat");
+		byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output-mada.dat");
 		
-		byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output.dat");
+		//byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output.dat");
 		String bitStringFromArray = stringFromByteArray(byteArrayFromFile);
 		String encodedBitText = cleanStringFromBits(bitStringFromArray);
 		
 		// get decode table from file and save in hashMap
 		
 		// TEST FILE OF VOGT
-		// File decTab = new File("/dec_tab-mada.txt");
+		File decTab = new File("/dec_tab-mada.txt");
 		
-		File decTab = new File(DECODE_TABLE_FILE_NAME +  DECODE_TABLE_FILE_EXTENSION);
+		// File decTab = new File(DECODE_TABLE_FILE_NAME +  DECODE_TABLE_FILE_EXTENSION);
 		String decTabContent = fileUtils.readContentFromFile(decTab);
 		HashMap<String, Integer> encTableMap = huffmanUtils.getHashMapFromDecTab(decTabContent);
 		
 		// decode text with hashmap
 		String decodedContent = huffmanUtils.decode(encodedBitText, encTableMap);
 		notify(decodedContent);
+		
+		File decompressFile = new File(DECODED_TEXT_FILE_NAME);
+		fileUtils.writeToFile(decompressFile, decodedContent);
 		
 		notify("END");
 	}
