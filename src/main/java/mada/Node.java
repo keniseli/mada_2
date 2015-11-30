@@ -12,8 +12,7 @@ public class Node {
 		this.child1 = child1;
 		this.child0.setParent(this);
 		this.child1.setParent(this);
-		this.value = String
-				.format("%s%s", child0.getValue(), child1.getValue());
+		this.value = String.format("%s%s", child0.getValue(), child1.getValue());
 		this.probability = child0.getProbability() + child1.getProbability();
 	}
 
@@ -22,6 +21,16 @@ public class Node {
 		this.value = value;
 	}
 
+	/**
+	 * The code is always dependant on the parent: <br />
+	 * if this node is the first child, its code is the code of the parent (and
+	 * therefore the parents parent) plus 0<br />
+	 * if this node is the second child, its code is the code of the parent (and
+	 * therefore the parents parent) plus 1.
+	 * 
+	 * @param child
+	 * @return
+	 */
 	public String getCode(Node child) {
 		String code = "";
 		if (parent != null) {
@@ -65,18 +74,6 @@ public class Node {
 		if (getClass() != obj.getClass())
 			return false;
 		Node other = (Node) obj;
-		if (child0 == null) {
-			if (other.child0 != null)
-				return false;
-		} else if (!child0.equals(other.child0))
-			return false;
-		if (child1 == null) {
-			if (other.child1 != null)
-				return false;
-		} else if (!child1.equals(other.child1))
-			return false;
-		if (probability != other.probability)
-			return false;
 		if (value == null) {
 			if (other.value != null)
 				return false;

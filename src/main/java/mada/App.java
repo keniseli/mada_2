@@ -1,9 +1,6 @@
 package mada;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -43,7 +40,9 @@ public class App {
 	 * and writes the {@link byte byte[]} to the temp file with the name
 	 * {@link #ENCODED_FILE_NAME}, <br />
 	 * <br />
-	 * 
+	 * then reads given decoding table<br />
+	 * then reads encoded content as byte array<br />
+	 * and decodes content using decoding table codes
 	 */
 	private void doTheHuffman() {
 		File inputFile = fileUtils.getFileFromClassPath(INPUT_FILE);
@@ -54,42 +53,25 @@ public class App {
 		String encodingTable = huffmanUtils.generateEncodingTable(content, nodes);
 		String decodingTableFileName = fileUtils.writeToTemporaryFile(DECODE_TABLE_FILE_NAME,
 				DECODE_TABLE_FILE_EXTENSION, encodingTable);
-		String decodingTableFileWrittenMessage = String.format("wrote decode table to file [%s].",
-				decodingTableFileName);
-		notify(decodingTableFileWrittenMessage);
+		notify("decoding table: " + decodingTableFileName);
 
 		String encodedContent = huffmanUtils.encode(content, nodes);
-		notify("encodedContent: " + encodedContent);
 		byte[] bytes = toByteArray(encodedContent);
 		String outputFileName = fileUtils.writeByteArrayToTemporaryFile(bytes, ENCODED_FILE_NAME,
 				ENCODED_FILE_EXTENSION);
-		String encodedFileWrittenMessage = String.format("wrote encoded output to file [%s].", outputFileName);
-		notify(encodedFileWrittenMessage);
-		
-		// part 9 by PL
-		// content to decode from byte-array
-		
-		// TEST FILE OF VOGT
-		// byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output-mada.dat");
-		
-		byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output.dat");
+		notify("encoded content: " + outputFileName);
+
+		byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output-mada.dat");
 		String bitStringFromArray = stringFromByteArray(byteArrayFromFile);
 		String encodedBitText = cleanStringFromBits(bitStringFromArray);
-		
-		// get decode table from file and save in hashMap
-		
-		// TEST FILE OF VOGT
-		// File decTab = new File("/dec_tab-mada.txt");
-		
-		File decTab = new File(DECODE_TABLE_FILE_NAME +  DECODE_TABLE_FILE_EXTENSION);
+
+		File decTab = fileUtils.getFileFromClassPath("/dec_tab-mada.txt");
+
 		String decTabContent = fileUtils.readContentFromFile(decTab);
 		HashMap<String, Integer> encTableMap = huffmanUtils.getHashMapFromDecTab(decTabContent);
-		
-		// decode text with hashmap
+
 		String decodedContent = huffmanUtils.decode(encodedBitText, encTableMap);
 		notify(decodedContent);
-		
-		notify("END");
 	}
 
 	private void notify(String message) {
@@ -105,18 +87,32 @@ public class App {
 		}
 		return bytes;
 	}
-	
+
 	private String stringFromByteArray(byte[] bytes) {
 		StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE);
-	    for( int i = 0; i < Byte.SIZE * bytes.length; i++ ) {
-	    	sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
-	    }
-	    
-	    String bites = sb.toString();
-	    
-	    return bites;
+		for (Byte b : bytes) {
+			String stringFromByte = convertByteToString(b);
+			sb.append(stringFromByte);
+		}
+		String bites = sb.toString();
+		return bites;
 	}
-	
+
+	private String convertByteToString(Byte b) {
+		int x = b;
+		if (x < 0)
+			x = x + 256;
+		StringBuilder s = new StringBuilder();
+		for (int i = 0; i < Byte.SIZE; i++) {
+			if ((x % 2) == 1)
+				s.insert(0, '1');
+			else
+				s.insert(0, '0');
+			x = x / 2;
+		}
+		return s.toString();
+	}
+
 	private String cleanStringFromBits(String bitText) {
 		int index = bitText.lastIndexOf("1");
 		return bitText.substring(0, index);
