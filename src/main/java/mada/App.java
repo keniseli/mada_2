@@ -10,6 +10,7 @@ public class App {
 	private static final String DECODE_TABLE_FILE_EXTENSION = ".txt";
 	private static final String ENCODED_FILE_NAME = "output";
 	private static final String ENCODED_FILE_EXTENSION = ".dat";
+	private static final String DECODED_TEXT_FILE_NAME = "decompress.txt";	
 	private static final int BITS_PER_BYTE = 8;
 
 	private HuffmanUtils huffmanUtils;
@@ -72,6 +73,9 @@ public class App {
 
 		String decodedContent = huffmanUtils.decode(encodedBitText, encTableMap);
 		notify(decodedContent);
+		
+		File decompressFile = new File(DECODED_TEXT_FILE_NAME);
+		fileUtils.writeToFile(decompressFile, decodedContent);
 	}
 
 	private void notify(String message) {
