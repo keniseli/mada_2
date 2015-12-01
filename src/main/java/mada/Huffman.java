@@ -1,26 +1,15 @@
 package mada;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 
-public class App {
-	private static final String INPUT_FILE = "/test.txt";
-	private static final String DECODE_TABLE_FILE_NAME = "dec_tab";
-	private static final String DECODE_TABLE_FILE_EXTENSION = ".txt";
-	private static final String ENCODED_FILE_NAME = "output";
-	private static final String ENCODED_FILE_EXTENSION = ".dat";
-	private static final int BITS_PER_BYTE = 8;
-
+public class Huffman {
 	private HuffmanUtils huffmanUtils;
 	private FileUtils fileUtils;
 
-	public static void main(String[] args) {
-		App app = new App();
-		app.doTheHuffman();
-	}
-
-	public App() {
+	public Huffman() {
 		huffmanUtils = new HuffmanUtils();
 		fileUtils = new FileUtils();
 	}
@@ -40,52 +29,63 @@ public class App {
 	 * and writes the {@link byte byte[]} to the temp file with the name
 	 * {@link #ENCODED_FILE_NAME}, <br />
 	 * <br />
-	 * then reads given decoding table<br />
-	 * then reads encoded content as byte array<br />
-	 * and decodes content using decoding table codes
+	 * at the end compares the file sizes of the input file and the encoded
+	 * file.
 	 */
-	private void doTheHuffman() {
-		File inputFile = fileUtils.getFileFromClassPath(INPUT_FILE);
+	public void encode(File inputFile, File decodeTableFile, File encodedFile) {
 		String content = fileUtils.readContentFromFile(inputFile);
+		notify("plain content to be encoded: " + content);
 
 		int[] probabilityTable = huffmanUtils.determineProbabilityTable(content);
 		List<Node> nodes = huffmanUtils.createFrequencyTree(probabilityTable);
 		String encodingTable = huffmanUtils.generateEncodingTable(content, nodes);
-		String decodingTableFileName = fileUtils.writeToTemporaryFile(DECODE_TABLE_FILE_NAME,
-				DECODE_TABLE_FILE_EXTENSION, encodingTable);
-		notify("decoding table: " + decodingTableFileName);
+		fileUtils.writeToFile(decodeTableFile, encodingTable);
+		notify("decoding table: " + decodeTableFile.getAbsolutePath());
 
 		String encodedContent = huffmanUtils.encode(content, nodes);
 		byte[] bytes = toByteArray(encodedContent);
-		String outputFileName = fileUtils.writeByteArrayToTemporaryFile(bytes, ENCODED_FILE_NAME,
-				ENCODED_FILE_EXTENSION);
-		notify("encoded content: " + outputFileName);
-
-		byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile("output-mada.dat");
-		String bitStringFromArray = stringFromByteArray(byteArrayFromFile);
-		String encodedBitText = cleanStringFromBits(bitStringFromArray);
-
-		File decTab = fileUtils.getFileFromClassPath("/dec_tab-mada.txt");
-
-		String decTabContent = fileUtils.readContentFromFile(decTab);
-		HashMap<String, Integer> encTableMap = huffmanUtils.getHashMapFromDecTab(decTabContent);
-
-		String decodedContent = huffmanUtils.decode(encodedBitText, encTableMap);
-		notify(decodedContent);
-	}
-
-	private void notify(String message) {
-		System.out.println(message);
+		fileUtils.writeToFile(bytes, encodedFile);
+		notify("encoded content: " + encodedFile.getAbsolutePath());
+		compareFileSizes(inputFile, encodedFile);
 	}
 
 	private byte[] toByteArray(String text) {
-		int arrayLength = text.length() / BITS_PER_BYTE;
-		byte[] bytes = new byte[arrayLength];
-		for (int i = 0; i < arrayLength; i += BITS_PER_BYTE) {
-			byte b = Byte.parseByte(text, 2);
-			bytes[i / BITS_PER_BYTE] = b;
+		byte[] bigIntegerByteArray = new BigInteger(text, 2).toByteArray();
+		if (bigIntegerByteArray.length != 0 && bigIntegerByteArray[0] == 0) {
+			byte[] bytes = new byte[bigIntegerByteArray.length - 1];
+			for (int i = 1; i < bigIntegerByteArray.length; i++) {
+				bytes[i - 1] = bigIntegerByteArray[i];
+			}
+			return bytes;
+		} else {
+			return bigIntegerByteArray;
 		}
-		return bytes;
+	}
+
+	private void compareFileSizes(File inputFile, File encodedFile) {
+		long inputFileSize = inputFile.length();
+		long encodedFileSize = encodedFile.length();
+		long sizeDiff = inputFileSize - encodedFileSize;
+		String message = String.format("encoding saved [%s] bytes.", sizeDiff);
+		notify(message);
+	}
+
+	/**
+	 * Reads given decoding table<br />
+	 * then reads encoded content as byte array<br />
+	 * and decodes content using decoding table codes
+	 */
+	public String decode(File encodedFile, File decodeTableFile) {
+		byte[] byteArrayFromFile = fileUtils.readByteArrayFromFile(encodedFile);
+		String bitStringFromArray = stringFromByteArray(byteArrayFromFile);
+		String encodedBitText = cleanStringFromBits(bitStringFromArray);
+
+		String decTabContent = fileUtils.readContentFromFile(decodeTableFile);
+		HashMap<String, Integer> encTableMap = huffmanUtils.getHashMapFromDecTab(decTabContent);
+
+		String decodedContent = huffmanUtils.decode(encodedBitText, encTableMap);
+		notify("decoded content: " + decodedContent);
+		return decodedContent;
 	}
 
 	private String stringFromByteArray(byte[] bytes) {
@@ -118,4 +118,7 @@ public class App {
 		return bitText.substring(0, index);
 	}
 
+	private void notify(String message) {
+		System.out.println(message);
+	}
 }

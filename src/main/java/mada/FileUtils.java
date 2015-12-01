@@ -2,7 +2,6 @@ package mada;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,13 +67,11 @@ public class FileUtils {
 		}
 	}
 
-	public String writeByteArrayToTemporaryFile(byte[] bytes, String outputFileName, String outputFileExtension) {
+	public void writeToFile(byte[] bytes, File outputFile) {
 		try {
-			File outputFile = File.createTempFile(outputFileName, outputFileExtension);
 			FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
 			fileOutputStream.write(bytes);
 			fileOutputStream.close();
-			return outputFile.getAbsolutePath();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -90,23 +87,18 @@ public class FileUtils {
 		}
 	}
 	
-	public byte[] readByteArrayFromFile(String fileName) {
-		File file = new File(fileName);
-		byte[] bFile = new byte[(int) file.length()];
+	public byte[] readByteArrayFromFile(File file) {
+		byte[] bytes = new byte[(int) file.length()];
 		FileInputStream fis;
 		try {
 			fis = new FileInputStream(file);
-			fis.read(bFile);
+			fis.read(bytes);
 			fis.close();
-		} catch (FileNotFoundException e) {
-			// file not found
-			e.printStackTrace();
 		} catch (IOException e) {
-			// problem with reading
 			e.printStackTrace();
 		}
 		
-		return bFile;
+		return bytes;
 	}
 
 }

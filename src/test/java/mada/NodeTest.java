@@ -33,9 +33,9 @@ public class NodeTest {
 	@Test
 	public void testCodeOfChildOfChild() {
 		Node node = new Node(1, "a");
-		Node child0 = new Node(1, "a");
-		Node child1 = new Node(1, "a");
-		Node child2 = new Node(1, "a");
+		Node child0 = new Node(1, "b");
+		Node child1 = new Node(1, "c");
+		Node child2 = new Node(1, "d");
 		node.setChild0(child0);
 		node.setChild1(child1);
 		child1.setChild0(child2);
